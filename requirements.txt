@@ -1,0 +1,11 @@
+langchain
+requests
+langchain-ollama
+langchain-community
+fastapi[standard]
+uvicorn
+langchain-openai
+python-dotenv
+slowapi
+pytest
+httpx

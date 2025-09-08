@@ -1,0 +1,150 @@
+[
+  {
+    "user_id": "u1001",
+    "name": "Alice Smith",
+    "email": "alice.smith@email.com",
+    "phone": "+44 7700 900123",
+    "city": "London",
+    "country": "United Kingdom",
+    "education": "Master's degree in Data Science",
+    "skills": ["Python", "Data Analysis", "Machine Learning", "SQL", "TensorFlow", "Pandas", "Scikit-learn", "Statistics"],
+    "experience_years": 4,
+    "current_title": "Data Analyst",
+    "certifications": ["Google Data Analytics Professional Certificate", "AWS Certified Cloud Practitioner"],
+    "career_objective": "Seeking opportunities in data science to leverage my analytical skills and drive business insights.",
+    "cv_text": "Experienced Data Analyst with 4 years of expertise in machine learning, statistical analysis, and data visualization. Proficient in Python, SQL, and advanced analytics tools including TensorFlow and Pandas. Led data-driven projects that increased business revenue by 25% through predictive modeling and customer segmentation. Developed automated reporting systems that reduced manual work by 60%. Experience with cloud platforms (AWS) and big data processing. Strong background in A/B testing, statistical modeling, and presenting insights to stakeholders. Collaborated with cross-functional teams to implement data solutions that improved operational efficiency by 30%.",
+    "search_history": ["Data Scientist", "Python Developer", "Remote IT jobs"],
+    "preferred_locations": ["London", "Remote", "Manchester"],
+    "salary_expectations": {
+      "min": 50000,
+      "max": 70000
+    }
+  },
+  {
+    "user_id": "u1002",
+    "name": "Bob Johnson",
+    "email": "bob.johnson@email.com",
+    "phone": "+44 7700 900124",
+    "city": "Birmingham",
+    "country": "United Kingdom",
+    "education": "Bachelor's degree in Business Management",
+    "skills": ["Project Management", "Agile", "Scrum", "Leadership", "Risk Management", "Stakeholder Management", "JIRA", "Confluence"],
+    "experience_years": 6,
+    "current_title": "Senior Project Manager",
+    "certifications": ["PMP Certified", "Certified Scrum Master", "Prince2 Practitioner"],
+    "cv_text": "Senior Project Manager with 6 years of experience leading cross-functional teams and delivering complex projects on time and within budget. Expert in Agile and Scrum methodologies with proven track record of managing projects worth up to £2M. Successfully delivered 15+ major software implementations with 98% stakeholder satisfaction rate. Reduced project delivery time by 40% through process optimization and team leadership. Experience managing teams of 10+ members across multiple time zones. Strong expertise in risk management, budget control, and stakeholder communication. Led digital transformation initiatives that improved operational efficiency by 35%.",
+    "search_history": ["Project Manager", "Scrum Master", "Management Jobs"],
+    "preferred_locations": ["Birmingham", "London", "Remote"],
+    "salary_expectations": {
+      "min": 55000,
+      "max": 75000
+    }
+  },
+  {
+    "user_id": "u1003",
+    "name": "Carol Lee",
+    "email": "carol.lee@email.com",
+    "phone": "+44 7700 900125",
+    "city": "Bristol",
+    "country": "United Kingdom",
+    "education": "Bachelor's degree in Graphic Design",
+    "skills": ["Graphic Design", "Adobe Photoshop", "Branding", "Illustrator", "InDesign", "UI/UX Design", "Typography", "Creative Strategy"],
+    "experience_years": 5,
+    "current_title": "Senior Graphic Designer",
+    "certifications": ["Adobe Certified Expert", "Google UX Design Certificate"],
+    "cv_text": "Creative Senior Graphic Designer with 5 years of experience creating compelling visual designs for both digital and print media. Proficient in Adobe Creative Suite (Photoshop, Illustrator, InDesign) and UI/UX design principles. Led rebranding projects for 20+ clients, resulting in average 45% increase in brand recognition. Designed marketing materials that improved conversion rates by 30%. Experience in creating design systems and brand guidelines for startups and established companies. Collaborated with marketing teams to develop visual strategies that increased social media engagement by 60%. Strong portfolio demonstrating expertise in logo design, packaging, web design, and marketing collateral.",
+    "search_history": ["Graphic Designer", "Design Jobs", "Remote Creative Jobs"],
+    "preferred_locations": ["Bristol", "London", "Remote"],
+    "salary_expectations": {
+      "min": 35000,
+      "max": 50000
+    }
+  },
+  {
+    "user_id": "user001",
+    "name": "Alice Johnson",
+    "email": "alice.johnson@email.com",
+    "phone": "+44 7700 900001",
+    "city": "London",
+    "country": "United Kingdom",
+    "education": "Bachelor's degree in Computer Science",
+    "skills": ["React.js", "Node.js", "MongoDB", "Express", "AWS", "Agile", "JavaScript", "HTML5", "CSS3"],
+    "experience_years": 4,
+    "current_title": "Frontend Developer",
+    "certifications": ["AWS Certified Developer"],
+    "cv_text": "Frontend Developer with 4 years of experience building responsive web applications using React.js, Node.js, and modern JavaScript frameworks. Developed and maintained 10+ production applications serving 50,000+ users. Expertise in creating user-friendly interfaces and optimizing website performance, achieving 40% improvement in page load speeds. Proficient in AWS cloud services and Agile development methodologies. Built a personal portfolio website showcasing technical skills and project achievements. Strong background in full-stack development with experience in MongoDB and Express.js. Collaborated with cross-functional teams to deliver high-quality software solutions.",
+    "search_history": ["Frontend Developer", "React Developer", "Web Developer"],
+    "preferred_locations": ["London", "Remote"],
+    "salary_expectations": {
+      "min": 45000,
+      "max": 60000
+    },
+    "portfolio": "https://alicejohnson.dev",
+    "projects": [
+      {
+        "name": "Personal Portfolio",
+        "description": "A personal portfolio website showcasing my projects and skills.",
+        "technologies": ["React.js", "Node.js", "MongoDB"],
+        "link": "https://alicejohnson.dev"
+      }
+    ]
+  },
+  {
+    "user_id": "user002",
+    "name": "Bob Smith",
+    "email": "bob.smith@email.com",
+    "phone": "+44 7700 900002",
+    "city": "London",
+    "country": "United Kingdom",
+    "education": "Master's degree in Software Engineering",
+    "skills": ["JavaScript", "React.js", "Express", "Git", "Azure", "Node.js", "MongoDB", "TypeScript"],
+    "experience_years": 5,
+    "current_title": "Full Stack Developer",
+    "certifications": ["Scrum Master", "Azure Developer Associate"],
+    "cv_text": "Full Stack Developer with 5 years of experience in building scalable web applications using JavaScript, React.js, and Node.js. Led development of an e-commerce platform that increased sales by 35% and improved user experience. Expert in both frontend and backend technologies with strong Azure cloud experience. Developed RESTful APIs serving 100,000+ requests daily. Proficient in Agile methodologies and team leadership. Built and deployed applications using modern DevOps practices and CI/CD pipelines. Strong problem-solving skills with experience in database design and optimization.",
+    "search_history": ["Full Stack Developer", "JavaScript Developer", "Senior Developer"],
+    "preferred_locations": ["London", "Manchester", "Remote"],
+    "salary_expectations": {
+      "min": 55000,
+      "max": 70000
+    },
+    "portfolio": "https://bobsmith.dev",
+    "projects": [
+      {
+        "name": "E-commerce Platform",
+        "description": "Developed a scalable e-commerce web application with user authentication, product catalog, and payment integration.",
+        "technologies": ["React.js", "Node.js", "MongoDB", "Express"],
+        "link": "https://bobsmith.dev/ecommerce"
+      }
+    ]
+  },
+  {
+    "user_id": "user003",
+    "name": "Chloe Lee",
+    "email": "chloe.lee@email.com",
+    "phone": "+44 7700 900003",
+    "city": "London",
+    "country": "United Kingdom",
+    "education": "Bachelor's degree in Computer Science",
+    "skills": ["HTML5", "CSS3", "React.js", "Node.js", "MongoDB", "JavaScript", "Responsive Design"],
+    "experience_years": 3,
+    "current_title": "Web Developer",
+    "certifications": [],
+    "cv_text": "Web Developer with 3 years of experience creating responsive websites and web applications. Proficient in HTML5, CSS3, React.js, and Node.js with strong focus on user experience and modern design principles. Built a personal blog platform with markdown support and user engagement features. Experience in database management with MongoDB and API development. Strong attention to detail and passion for creating clean, maintainable code. Collaborated with design teams to implement pixel-perfect interfaces and ensure cross-browser compatibility.",
+    "search_history": ["Web Developer", "Frontend Developer", "Junior Developer"],
+    "preferred_locations": ["London", "Remote"],
+    "salary_expectations": {
+      "min": 35000,
+      "max": 45000
+    },
+    "portfolio": "https://chloelee.dev",
+    "projects": [
+      {
+        "name": "Blog Platform",
+        "description": "Created a personal blog platform with markdown support and user comments.",
+        "technologies": ["React.js", "Node.js", "MongoDB"],
+        "link": "https://chloelee.dev/blog"
+      }
+    ]
+  }
+]
