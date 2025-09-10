@@ -1,489 +1,449 @@
-import os
 import json
-import time
-import re
+import os
 from datetime import datetime
-from typing import Optional, List, Dict, Any
-from dataclasses import dataclass
-from pathlib import Path
-from pydantic import BaseModel, Field
-from dotenv import load_dotenv
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import JsonOutputParser
+from typing import Dict, Any, Optional
+from fastapi import FastAPI, HTTPException, status, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from pydantic import BaseModel, Field, validator
 
-load_dotenv()
+from generator import (
+    AIJobDescriptionGenerator, 
+    validate_job_parameters, 
+    create_job_parameters,
+    VALID_EXPERIENCE_LEVELS,
+    VALID_LOCATION_TYPES,
+    VALID_EMPLOYMENT_TYPES
+)
 
-class JobParams(BaseModel):
-    job_title: str
-    industry: str
-    education: str
-    company_name: str = "Your Company"
-    location_type: str = "Hybrid"
-    experience: float
-    required_skills: List[str]
-    preferred_skills: List[str]
+app = FastAPI(
+    title="AI Job Description Generator API",
+    version="1.0.0",
+    description="Production-ready API for generating AI-powered job descriptions"
+)
 
-class JobSections(BaseModel):
-    executive_summary: str = Field(alias="Executive Summary")
-    key_responsibilities: List[str] = Field(alias="Key Responsibilities")
-    required_qualifications: List[str] = Field(alias="Required Qualifications")
-    preferred_qualifications: List[str] = Field(alias="Preferred Qualifications")
-    what_we_offer: List[str] = Field(alias="What We Offer")
-    skills: List[str]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
-    class Config:
-        populate_by_name = True
+generator = None
 
-class JobOutputs(BaseModel):
-    sections: JobSections
+def get_generator():
+    global generator
+    if generator is None:
+        try:
+            generator = AIJobDescriptionGenerator()
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Failed to initialize AI generator: {str(e)}"
+            )
+    return generator
 
-class JobDescription(BaseModel):
-    timestamp: str
-    params: JobParams
-    outputs: JobOutputs
-
-@dataclass
-class JobParameters:
-    job_title: str
-    industry: Optional[str] = None
-    experience: Optional[float] = None
+class JobDescriptionRequest(BaseModel):
+    job_title: str = Field(..., min_length=1, description="Job title is required and cannot be empty")
+    experience: Optional[str] = None
     education: Optional[str] = None
-    company_name: Optional[str] = None
+    industry: Optional[str] = None
     location_type: Optional[str] = None
-    required_skills: Optional[List[str]] = None
-    preferred_skills: Optional[List[str]] = None
+    required_skills: Optional[str] = None
+    company_name: Optional[str] = None
+    company_information: Optional[str] = None
+    employment_type: Optional[str] = None
+    experience_level: Optional[str] = None
+    job_responsibilities: Optional[str] = None
+    required_qualifications: Optional[str] = None
+    preferred_skills: Optional[str] = None
+    salary_range: Optional[str] = None
+    benefits_perks: Optional[str] = None
+    additional_notes: Optional[str] = None
 
-@dataclass
-class ExecutionTiming:
-    ai_generation_time: float
-    total_execution_time: float
-    config_load_time: float
-    file_save_time: float
+    @validator('job_title')
+    def validate_job_title(cls, v):
+        if not v or not v.strip():
+            raise ValueError('Job title cannot be empty or contain only whitespace')
+        return v.strip()
 
-class AIJobDescriptionGenerator:
-    def __init__(self, model_type: str = "ollama", model_name: str = None, api_key: Optional[str] = None):
-        """
-        Initialize the AI Job Description Generator
+    @validator('location_type')
+    def validate_location_type(cls, v):
+        if v and v not in VALID_LOCATION_TYPES:
+            raise ValueError(f'Invalid location_type. Valid options: {", ".join(VALID_LOCATION_TYPES)}')
+        return v
+
+    @validator('employment_type')
+    def validate_employment_type(cls, v):
+        if v and v not in VALID_EMPLOYMENT_TYPES:
+            raise ValueError(f'Invalid employment_type. Valid options: {", ".join(VALID_EMPLOYMENT_TYPES)}')
+        return v
+
+    @validator('experience_level')
+    def validate_experience_level(cls, v):
+        if v and v not in VALID_EXPERIENCE_LEVELS:
+            raise ValueError(f'Invalid experience_level. Valid options: {", ".join(VALID_EXPERIENCE_LEVELS)}')
+        return v
+
+class ValidationRequest(BaseModel):
+    job_title: Optional[str] = Field(None, min_length=1, description="Job title cannot be empty")
+    experience: Optional[str] = None
+    education: Optional[str] = None
+    industry: Optional[str] = None
+    location_type: Optional[str] = None
+    required_skills: Optional[str] = None
+    company_name: Optional[str] = None
+    company_information: Optional[str] = None
+    employment_type: Optional[str] = None
+    experience_level: Optional[str] = None
+    job_responsibilities: Optional[str] = None
+    required_qualifications: Optional[str] = None
+    preferred_skills: Optional[str] = None
+    salary_range: Optional[str] = None
+    benefits_perks: Optional[str] = None
+    additional_notes: Optional[str] = None
+
+    @validator('job_title')
+    def validate_job_title(cls, v):
+        if v is not None and (not v or not v.strip()):
+            raise ValueError('Job title cannot be empty or contain only whitespace')
+        return v.strip() if v else v
+
+    @validator('location_type')
+    def validate_location_type(cls, v):
+        if v and v not in VALID_LOCATION_TYPES:
+            raise ValueError(f'Invalid location_type. Valid options: {", ".join(VALID_LOCATION_TYPES)}')
+        return v
+
+    @validator('employment_type')
+    def validate_employment_type(cls, v):
+        if v and v not in VALID_EMPLOYMENT_TYPES:
+            raise ValueError(f'Invalid employment_type. Valid options: {", ".join(VALID_EMPLOYMENT_TYPES)}')
+        return v
+
+    @validator('experience_level')
+    def validate_experience_level(cls, v):
+        if v and v not in VALID_EXPERIENCE_LEVELS:
+            raise ValueError(f'Invalid experience_level. Valid options: {", ".join(VALID_EXPERIENCE_LEVELS)}')
+        return v
+
+class JobDescriptionResponse(BaseModel):
+    success: bool
+    data: Dict[str, Any]
+    timing: Dict[str, float]
+    message: str = "Job description generated successfully"
+
+class ErrorResponse(BaseModel):
+    success: bool = False
+    error: str
+    message: str
+    details: Dict[str, Any] = {}
+
+class HealthResponse(BaseModel):
+    status: str
+    version: str
+    timestamp: str
+    environment: str
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Handle Pydantic validation errors with HTTP 422 status"""
+    errors = []
+    for error in exc.errors():
+        field = " -> ".join(str(loc) for loc in error["loc"])
+        message = error["msg"]
         
-        Args:
-            model_type: "ollama" or "openai"
-            model_name: "llama3.2" for ollama, "gpt-4o-mini" for openai
-            api_key: OpenAI API key (required for OpenAI models)
-        """
-        self.model_type = model_type.lower()
+        if "job_title" in field:
+            if "field required" in message:
+                message = "Job title is required and cannot be empty"
+            elif "ensure this value has at least 1 characters" in message:
+                message = "Job title must contain at least 1 character"
+            elif "Job title cannot be empty" in message:
+                message = "Job title cannot be empty or contain only whitespace"
         
-        # Set default model names
-        if model_name is None:
-            if self.model_type == "ollama":
-                model_name = "llama3.2"
-            else:
-                model_name = "gpt-4o-mini"
-        
-        self.model_name = model_name
-        
-        if self.model_type == "ollama":
-            self._init_ollama()
-        elif self.model_type == "openai":
-            self._init_openai(api_key)
-        else:
-            raise ValueError("model_type must be either 'ollama' or 'openai'")
-        
-        self.prompt = ChatPromptTemplate.from_template(
-            """Create a comprehensive job description for: {job_title}
-
-Available Information:
-- Industry: {industry}
-- Experience Level: {experience} years
-- Education: {education}
-- Company: {company_name}
-- Work Model: {location_type}
-
-AI Instructions:
-- Intelligently fill any missing information based on industry standards for this role
-- Generate appropriate required and preferred skills for this position
-- Create professional, detailed job description sections
-- Ensure all generated content is relevant and realistic for this role
-- Output must be valid JSON in the exact structure below
-
-{{
-  "timestamp": "{timestamp}",
-  "params": {{
-    "job_title": "{job_title}",
-    "industry": "industry (use provided or determine appropriate one)",
-    "education": "education requirement (use provided or determine standard for role)",
-    "company_name": "company name (use provided or generate professional default)",
-    "location_type": "work arrangement (use provided or determine typical for role)",
-    "experience": experience_years_as_number,
-    "required_skills": ["list of essential skills for this role"],
-    "preferred_skills": ["list of preferred/bonus skills for this role"]
-  }},
-  "outputs": {{
-    "sections": {{
-      "Executive Summary": "compelling 2-3 sentence overview of the role",
-      "Key Responsibilities": ["5-7 specific responsibilities"],
-      "Required Qualifications": ["4-6 essential qualifications"],
-      "Preferred Qualifications": ["3-5 preferred qualifications"],
-      "What We Offer": ["4-5 competitive benefits and opportunities"],
-      "skills": ["Combined unique skills from required and preferred, plus relevant bonus skills as needed"]
-    }}
-  }}
-}}
-"""
-        )
-
-    def _init_ollama(self):
-        """Initialize Ollama model - same as main_langchain_ollama.py"""
-        try:
-            from langchain_ollama import ChatOllama
-            
-            self.llm = ChatOllama(
-                model=self.model_name,
-                temperature=0.2, 
-                num_predict=1500,
-                top_p=0.9,
-                top_k=40,
-                repeat_penalty=1.1,
-                stop=["\n\n---", "Human:", "Assistant:"]
-            )
-            self.parser = JsonOutputParser(pydantic_object=JobDescription)
-            
-            print(f"✓ Connected to Ollama with model: {self.model_name}")
-            
-        except ImportError:
-            raise ImportError("langchain_ollama is required for Ollama models. Install with: pip install langchain-ollama")
-        except Exception as e:
-            raise ConnectionError(f"Cannot connect to Ollama. Make sure Ollama is running and model {self.model_name} is available. Error: {e}")
-
-    def _init_openai(self, api_key: Optional[str] = None):
-        """Initialize OpenAI model"""
-        try:
-            from langchain_openai import ChatOpenAI
-            
-            api_key = api_key or os.getenv("OPENAI_API_KEY")
-            if not api_key:
-                raise ValueError(
-                    "OpenAI API key is required. Set OPENAI_API_KEY environment variable "
-                    "or pass it as a parameter."
-                )
-            
-            print(f"✓ Initializing OpenAI with model: {self.model_name}")
-            
-            self.llm = ChatOpenAI(
-                model=self.model_name,
-                temperature=0.1,
-                max_tokens=1000,
-                top_p=0.85,
-                frequency_penalty=0.2,
-                request_timeout=30,
-                max_retries=1,
-                api_key=api_key
-            )
-            self.parser = JsonOutputParser(pydantic_object=JobDescription)
-            
-        except ImportError:
-            raise ImportError("langchain_openai is required for OpenAI models. Install with: pip install langchain-openai")
-
-    def generate(self, params: JobParameters) -> tuple[str, float]:
-        """Generate job description using the selected model"""
-        print(f"Generating job description for: {params.job_title}")
-        print(f"Using {self.model_type.upper()} model: {self.model_name}")
-        
-        ai_start_time = time.perf_counter()
-        
-        try:
-            if self.model_type == "ollama":
-                return self._generate_ollama(params, ai_start_time)
-            else:
-                return self._generate_openai(params, ai_start_time)
-                
-        except Exception as e:
-            print(f"AI Generation failed: {e}")
-            raise
-
-    def _generate_ollama(self, params: JobParameters, ai_start_time: float) -> tuple[str, float]:
-        """Generate using Ollama - use same approach as main_langchain_ollama.py"""
-        try:
-            chain = self.prompt | self.llm
-            
-            response = chain.invoke({
-                "job_title": params.job_title,
-                "industry": params.industry,
-                "experience": params.experience,
-                "education": params.education,
-                "company_name": params.company_name,
-                "location_type": params.location_type,
-                "timestamp": datetime.now().isoformat(),
-            })
-
-            ai_end_time = time.perf_counter()
-            ai_generation_time = ai_end_time - ai_start_time
-            
-            print("✓ Response received from Ollama")
-            
-            response_text = response.content if hasattr(response, 'content') else str(response)
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if json_match:
-                json_str = json_match.group()
-                try:
-                   
-                    result = json.loads(json_str)
-                    return json.dumps(result, indent=2, ensure_ascii=False), ai_generation_time
-                except json.JSONDecodeError as e:
-                    print(f"JSON parsing error: {e}")
-                    print(f"Raw response: {response_text[:500]}...")
-                    raise
-            else:
-                print(f"No JSON found in response: {response_text[:500]}...")
-                raise ValueError("No valid JSON found in response")
-
-        except Exception as e:
-            print(f"Ollama generation failed: {e}")
-            raise
-
-
-    def _generate_openai(self, params: JobParameters, ai_start_time: float) -> tuple[str, float]:
-        """Generate using OpenAI - same approach as main_langchain.py"""
-        try:
-           
-            chain = self.prompt | self.llm | self.parser
-            
-            result = chain.invoke({
-                "job_title": params.job_title,
-                "industry": params.industry,
-                "experience": params.experience,
-                "education": params.education,
-                "company_name": params.company_name,
-                "location_type": params.location_type,
-                "timestamp": datetime.now().isoformat(),
-            })
-            
-            ai_end_time = time.perf_counter()
-            ai_generation_time = ai_end_time - ai_start_time
-            
-            print("✓ Response received from OpenAI")
-            return json.dumps(result, indent=2, ensure_ascii=False), ai_generation_time
-
-        except Exception as e:
-            print(f"OpenAI generation failed, trying fallback: {e}")
-         
-            return self._openai_fallback(params, ai_start_time)
-
-    def _openai_fallback(self, params: JobParameters, ai_start_time: float) -> tuple[str, float]:
-        """Fallback OpenAI generation - same as main_langchain.py"""
-        try:
-            from openai import OpenAI
-            client = OpenAI()
-
-            fallback_prompt = f"""Create a detailed job description JSON for the position of {params.job_title}.
-
-Job Details:
-- Industry: {params.industry}
-- Experience: {params.experience} years
-- Education: {params.education}
-- Company Name: {params.company_name}
-- Location Type: {params.location_type}
-
-Instructions:
-- Auto-generate all missing information based on industry standards for this role
-- Generate relevant required and preferred skills
-- Provide comprehensive job description sections
-- Format as valid JSON matching the required structure
-
-{{
-  "timestamp": "{datetime.now().isoformat()}",
-  "params": {{
-    "job_title": "{params.job_title}",
-    "industry": "AI-determined industry",
-    "education": "AI-determined education requirement",
-    "company_name": "AI-determined or provided company name",
-    "location_type": "AI-determined location type",
-    "experience": "AI-determined experience level",
-    "required_skills": ["AI-generated required skills"],
-    "preferred_skills": ["AI-generated preferred skills"]
-  }},
-  "outputs": {{
-    "sections": {{
-      "Executive Summary": "AI-generated compelling overview",
-      "Key Responsibilities": ["AI-generated responsibilities"],
-      "Required Qualifications": ["AI-generated qualifications"],
-      "Preferred Qualifications": ["AI-generated preferred qualifications"],
-      "What We Offer": ["AI-generated benefits"],
-      "skills": ["Generate combined unique individual skills"]
-    }}
-  }}
-}}
-"""
-
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": fallback_prompt}],
-                response_format={"type": "json_object"},
-                temperature=0.1,
-                max_tokens=1200
-            )
-            
-            ai_end_time = time.perf_counter()
-            ai_generation_time = ai_end_time - ai_start_time
-            
-            print("✓ Response received from OpenAI fallback")
-            return response.choices[0].message.content, ai_generation_time
-            
-        except Exception as e:
-            print(f"OpenAI fallback failed: {e}")
-            raise
-
-    def _extract_json_from_text(self, text: str) -> Optional[Dict]:
-        """Extract and validate JSON from text response"""
-        text = text.strip()
-        
-        print(f"🔍 Extracting JSON from response (first 300 chars): {text[:300]}...")
-        
-        if text.startswith('{') and text.endswith('}'):
-            try:
-                result = json.loads(text)
-                print("✓ Successfully parsed JSON directly")
-                return result
-            except json.JSONDecodeError as e:
-                print(f"⚠ Direct JSON parsing failed: {e}")
-        
-        json_patterns = [
-            r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', 
-            r'```json\s*(\{.*?\})\s*```',
-            r'```\s*(\{.*?\})\s*```',
-        ]
-        
-        for i, pattern in enumerate(json_patterns):
-            match = re.search(pattern, text, re.DOTALL)
-            if match:
-                json_str = match.group(1) if match.groups() else match.group()
-                try:
-                    print(f"✓ Pattern {i+1} matched, attempting to parse...")
-                    json_str = re.sub(r',\s*}', '}', json_str)  
-                    json_str = re.sub(r',\s*]', ']', json_str)
-                    result = json.loads(json_str)
-                    print("✓ Successfully parsed JSON from pattern")
-                    return result
-                except json.JSONDecodeError as e:
-                    print(f"⚠ Pattern {i+1} JSON parsing failed: {e}")
-                    continue
-        
-        print(f"❌ Could not extract JSON from response")
-        print(f"Full response: {text}")
-        return None
-
-def save_job_description(job_desc: Dict[str, Any], output_dir: str = "output") -> float:
-    """Save job description to JSON file"""
-    save_start_time = time.perf_counter()
+        errors.append({
+            "field": field,
+            "message": message,
+            "type": error["type"]
+        })
     
-    output_path = Path(output_dir)
-    output_path.mkdir(exist_ok=True)
-    
-    title = job_desc["params"]["job_title"]
-    clean_title = "".join(c.lower() if c.isalnum() else '_' for c in title)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{clean_title}_{timestamp}.json"
-    
-    filepath = output_path / filename
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(job_desc, f, indent=2, ensure_ascii=False)
-    
-    save_end_time = time.perf_counter()
-    print(f"✓ Saved to: {filepath}")
-    return save_end_time - save_start_time
-
-def load_config(config_path: str = "config.json") -> tuple[JobParameters, float]:
-    """Load configuration from JSON file"""
-    load_start_time = time.perf_counter()
-    
-    try:
-        with open(config_path, "r", encoding="utf-8") as f:
-            cfg = json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in config file: {e}")
-    
-    params = JobParameters(
-        job_title=cfg["job_title"],
-        industry=cfg.get("industry"),
-        experience=cfg.get("experience"),
-        education=cfg.get("education"),
-        company_name=cfg.get("company_name"),
-        location_type=cfg.get("location_type"),
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={
+            "success": False,
+            "error": "Validation Error",
+            "message": "The provided data is invalid",
+            "details": {
+                "validation_errors": errors
+            },
+            "timestamp": datetime.now().isoformat()
+        }
     )
-    
-    load_end_time = time.perf_counter()
-    return params, load_end_time - load_start_time
 
-def print_timing_results(timing: ExecutionTiming) -> None:
-    """Print execution timing results - same format as main_langchain.py"""
-    print("\n" + "="*50)
-    print("EXECUTION TIMING RESULTS")
-    print("="*50)
-    print(f"Config Load Time:     {timing.config_load_time:.4f} seconds")
-    print(f"AI Generation Time:   {timing.ai_generation_time:.4f} seconds")
-    print(f"File Save Time:       {timing.file_save_time:.4f} seconds")
-    print("-"*50)
-    print(f"TOTAL EXECUTION TIME: {timing.total_execution_time:.4f} seconds")
-    print("="*50)
-    ai_percentage = (timing.ai_generation_time / timing.total_execution_time) * 100
-    print(f"\nAI Generation represents {ai_percentage:.1f}% of total execution time")
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Handle HTTP exceptions with proper status codes"""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "error": "HTTP Error",
+            "message": exc.detail,
+            "status_code": exc.status_code,
+            "timestamp": datetime.now().isoformat()
+        }
+    )
 
-def select_model() -> tuple[str, str]:
-    """Interactive model selection"""
-    print("\n🤖 Select AI Model:")
-    print("1. Ollama (llama3.2) - Local")
-    print("2. OpenAI (gpt-4o-mini) - API")
-    
-    while True:
-        choice = input("\nEnter your choice (1 or 2): ").strip()
-        if choice == "1":
-            return "ollama", "llama3.2"
-        elif choice == "2":
-            return "openai", "gpt-4o-mini"
-        else:
-            print("Invalid choice. Please enter 1 or 2.")
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc):
+    """Handle 404 Not Found errors"""
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={
+            "success": False,
+            "error": "Not Found",
+            "message": "The requested endpoint was not found",
+            "status_code": 404,
+            "timestamp": datetime.now().isoformat()
+        }
+    )
 
-def main():
-    """Main function - same structure as main_langchain.py"""
-    print("🚀 AI Job Description Generator")
-    print("=" * 60)
-    
-    model_type, model_name = select_model()
-    
-    print(f"\n📋 Using {model_type.upper()} model: {model_name}")
-    print("=" * 60)
-    
-    total_start_time = time.perf_counter()
-    
+@app.exception_handler(500)
+async def internal_error_handler(request: Request, exc):
+    """Handle 500 Internal Server Error"""
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "success": False,
+            "error": "Internal Server Error",
+            "message": "An unexpected error occurred on the server",
+            "status_code": 500,
+            "timestamp": datetime.now().isoformat()
+        }
+    )
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    """Handle all other exceptions with 500 status"""
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "success": False,
+            "error": "Unexpected Error",
+            "message": f"An unexpected error occurred: {str(exc)}",
+            "status_code": 500,
+            "timestamp": datetime.now().isoformat()
+        }
+    )
+
+@app.get("/")
+async def root():
+    """Root endpoint with API information"""
+    return {
+        "message": "Welcome to AI Job Description Generator API",
+        "version": "1.0.0",
+        "description": "Production-ready API for generating AI-powered job descriptions",
+        "docs_url": "/docs",
+        "redoc_url": "/redoc",
+        "timestamp": datetime.now().isoformat()
+    }
+
+@app.get("/health", response_model=HealthResponse)
+async def health_check():
+    """Health check endpoint"""
     try:
-        
-        params, config_load_time = load_config()
-        print(f"📄 Loaded config for: {params.job_title}")
-        
-        generator = AIJobDescriptionGenerator(model_type=model_type, model_name=model_name)
-        job_desc_json, ai_generation_time = generator.generate(params)
-        job_desc = json.loads(job_desc_json)
-        
-        file_save_time = save_job_description(job_desc)
-        
-        total_end_time = time.perf_counter()
-        total_execution_time = total_end_time - total_start_time
-        
-        timing = ExecutionTiming(
-            ai_generation_time=ai_generation_time,
-            total_execution_time=total_execution_time,
-            config_load_time=config_load_time,
-            file_save_time=file_save_time
+        return HealthResponse(
+            status="healthy",
+            version="1.0.0",
+            timestamp=datetime.now().isoformat(),
+            environment=os.getenv("ENVIRONMENT", "development")
         )
-        print_timing_results(timing)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Service unhealthy: {str(e)}"
+        )
+
+@app.post("/api/v1/job-description/generate", response_model=JobDescriptionResponse)
+async def generate_job_description(request: JobDescriptionRequest):
+    """
+    Generate a job description using AI
+    
+    **Required Fields:**
+    - job_title: The title of the job position (cannot be empty)
+    
+    **Optional Fields:**
+    - experience: Years of experience required
+    - education: Educational requirements
+    - industry: Industry sector
+    - location_type: Work location type (remote, onsite, hybrid, etc.)
+    - required_skills: Essential skills required
+    - company_name: Name of the hiring company
+    - company_information: Information about the company
+    - employment_type: Type of employment (full-time, part-time, etc.)
+    - experience_level: Level of experience (junior, senior, etc.)
+    - job_responsibilities: Specific job responsibilities
+    - required_qualifications: Required qualifications
+    - preferred_skills: Preferred but not required skills
+    - salary_range: Salary range for the position
+    - benefits_perks: Benefits and perks offered
+    - additional_notes: Any additional information
+    
+    **Returns:**
+    - HTTP 200: Successfully generated job description
+    - HTTP 422: Validation error (e.g., empty job_title)
+    - HTTP 500: Internal server error
+    - HTTP 503: Service unavailable (AI service issue)
+    """
+    try:
+       
+        request_data = request.dict(exclude_unset=True)
+        validation_errors = validate_job_parameters(request_data)
+        if validation_errors:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "error": "Validation Error",
+                    "message": "Invalid input parameters",
+                    "details": validation_errors
+                }
+            )
         
-        print("\n Job description generated successfully!")
-        return 0
+        job_params = create_job_parameters(request_data)
+        generator_instance = get_generator()
+        job_desc_json, timing = await generator_instance.generate_async(job_params)
+        job_desc = json.loads(job_desc_json)
+
+        response = JobDescriptionResponse(
+            success=True,
+            data=job_desc,
+            timing={
+                "ai_generation_time": timing.ai_generation_time,
+                "total_execution_time": timing.total_execution_time,
+                "processing_time": timing.processing_time
+            }
+        )
+        
+        return response
+        
+    except HTTPException:
+        raise
+    except json.JSONDecodeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "error": "JSON Parsing Error",
+                "message": f"Failed to parse AI response: {str(e)}",
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "Bad Request",
+                "message": f"Invalid data provided: {str(e)}",
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+    except ConnectionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "error": "Service Unavailable",
+                "message": f"AI service is currently unavailable: {str(e)}",
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "error": "Generation Error",
+                "message": f"Failed to generate job description: {str(e)}",
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+
+@app.get("/api/v1/job-description/valid-options")
+async def get_valid_options():
+    """
+    Get valid options for job description parameters
+    
+    **Returns:**
+    - HTTP 200: Successfully retrieved valid options
+    - HTTP 500: Internal server error
+    """
+    try:
+        return {
+            "success": True,
+            "data": {
+                "experience_levels": VALID_EXPERIENCE_LEVELS,
+                "location_types": VALID_LOCATION_TYPES,
+                "employment_types": VALID_EMPLOYMENT_TYPES
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "error": "Server Error",
+                "message": f"Failed to retrieve valid options: {str(e)}",
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+
+@app.post("/api/v1/job-description/validate")
+async def validate_parameters(request: ValidationRequest):
+    """
+    Validate job description parameters without generating
+    
+    **Returns:**
+    - HTTP 200: Validation completed (success or failure indicated in response body)
+    - HTTP 500: Internal server error
+    """
+    try:
+        request_data = request.dict(exclude_unset=True)
+        
+        validation_errors = validate_job_parameters(request_data)
+        
+        if validation_errors:
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={
+                    "success": False,
+                    "valid": False,
+                    "errors": validation_errors,
+                    "message": "Validation failed - please check the errors",
+                    "timestamp": datetime.now().isoformat()
+                }
+            )
+        
+        return {
+            "success": True,
+            "valid": True,
+            "message": "All parameters are valid",
+            "timestamp": datetime.now().isoformat()
+        }
         
     except Exception as e:
-        print(f"\n Error: {e}")
-        return 1
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "error": "Validation Error",
+                "message": f"Failed to validate parameters: {str(e)}",
+                "timestamp": datetime.now().isoformat()
+            }
+        )
 
 if __name__ == "__main__":
-    main()
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True
+    )
