@@ -1,0 +1,99 @@
+{
+  "request_id": "req_d590dc25_1757488266",
+  "filename": "demoresume.pdf",
+  "method": "auto",
+  "data": {
+    "contact_information": {
+      "name": "Daniel Gallego",
+      "email": "hello@reallygreatsite.com",
+      "phone": "123 Anywhere St., Any City",
+      "location": "Any City, Country (not specified)",
+      "linkedin": "",
+      "github": ""
+    },
+    "professional_summary": "UX Designer with a focus on delivering impactful results, eager to tackle dynamic challenges and apply creativity to craft intuitive user experiences.",
+    "skills": {
+      "technical_skills": [
+        "Prototyping Tools",
+        "User Research",
+        "Information Architecture",
+        "Interaction Design",
+        "Visual Design",
+        "Usability Heuristics",
+        "Accessibility",
+        "Responsive Design",
+        "User Testing Tools"
+      ],
+      "soft_skills": [
+        "Leadership",
+        "Communication"
+      ],
+      "all_skills": [
+        "Prototyping Tools",
+        "User Research",
+        "Information Architecture",
+        "Interaction Design",
+        "Visual Design",
+        "Usability Heuristics",
+        "Accessibility",
+        "Responsive Design",
+        "User Testing Tools",
+        "Leadership",
+        "Communication"
+      ]
+    },
+    "education": [
+      {
+        "institution": "Engineering University",
+        "degree": "Bachelor of Design in Process Engineering",
+        "field_of_study": "Process Engineering",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "University of Engineering UX Cohort",
+        "degree": "Major in Automotive Technology",
+        "field_of_study": "Automotive Technology",
+        "graduation_year": "2019"
+      }
+    ],
+    "work_experience": [
+      {
+        "company": "XarrowAI Industries",
+        "position": "System UX Engineer",
+        "duration": "Feb 2021 - Dec 2022",
+        "description": "Designed and optimised a robotic control system, realizing a 12% performance improvement. Coordinated testing and validation, ensuring compliance with industry standards. Provided technical expertise, contributing to a 15% reduction in system failures."
+      },
+      {
+        "company": "Instant Chartz App, Morcelle Program",
+        "position": "UX Designer",
+        "duration": "Jan 2023 - Present",
+        "description": "Led development of an advanced automation system, achieving a 15% increase in operational efficiency. Streamlined manufacturing processes, reducing production costs by 10%. Implemented preventive maintenance strategies, resulting in a 20% decrease in equipment downtime."
+      }
+    ],
+    "projects": [],
+    "certifications": [
+      "Professional Design Engineer (PDE) License",
+      "Project Management Tech (PMT)"
+    ],
+    "years_of_experience": "3 years",
+    "ats_score": 0,
+    "metadata": {
+      "total_sections": 5,
+      "processed_at": "2025-09-10T13:11:14.664041",
+      "text_length": 1995
+    }
+  },
+  "metadata": {
+    "processing_method": "auto",
+    "total_time": 8.02162504196167,
+    "read_time": 0.08389115333557129,
+    "llm_time": 7.937016010284424,
+    "save_time": 0.00051116943359375,
+    "text_length": 1995,
+    "file_size": 69444,
+    "processed_at": "2025-09-10T13:11:14.664050",
+    "request_id": "req_d590dc25_1757488266",
+    "cached": false,
+    "file_hash": "eea33629624f807656d33bf9b9aeb1449684a93e845cd840951bd612476339aa"
+  }
+}
