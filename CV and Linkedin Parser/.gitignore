@@ -1,0 +1,7 @@
+.env
+cvvenv1/
+__pycache__/
+*.log
+*.txt
+!requirements.txt
+!demoresume_extracted.txt

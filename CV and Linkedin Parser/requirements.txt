@@ -1,0 +1,16 @@
+python-docx
+pdfplumber
+pdfminer.six
+docx2txt
+nltk
+pydantic
+langchain
+langchain-ollama
+PyPDF2
+spacy
+pandas
+python-dotenv
+slowapi
+python-multipart
+fastapi[standard]
+uvicorn
