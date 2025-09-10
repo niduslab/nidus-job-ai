@@ -1,0 +1,56 @@
+{
+  "name": "Daniel Gallego",
+  "email": "hello@reallygreatsite.com",
+  "phone": "123 Anywhere St., Any City",
+  "location": "Any City, Country (not specified)",
+  "summary": "UX Designer with a focus on delivering impactful results, eager to tackle dynamic challenges and apply creativity to craft intuitive user experiences.",
+  "technical_skills": [
+    "Prototyping Tools",
+    "User Research",
+    "Information Architecture",
+    "Interaction Design",
+    "Visual Design",
+    "Usability Heuristics",
+    "Accessibility",
+    "Responsive Design",
+    "User Testing Tools"
+  ],
+  "soft_skills": [
+    "Leadership",
+    "Communication"
+  ],
+  "education": [
+    {
+      "institution": "Engineering University",
+      "degree": "Bachelor of Design in Process Engineering",
+      "field_of_study": "Process Engineering",
+      "graduation_year": "2016"
+    },
+    {
+      "institution": "University of Engineering UX Cohort",
+      "degree": "Major in Automotive Technology",
+      "field_of_study": "Automotive Technology",
+      "graduation_year": "2019"
+    }
+  ],
+  "work_experience": [
+    {
+      "company": "XarrowAI Industries",
+      "position": "System UX Engineer",
+      "duration": "Feb 2021 - Dec 2022",
+      "description": "Designed and optimised a robotic control system, realizing a 12% performance improvement. Coordinated testing and validation, ensuring compliance with industry standards. Provided technical expertise, contributing to a 15% reduction in system failures."
+    },
+    {
+      "company": "Instant Chartz App, Morcelle Program",
+      "position": "UX Designer",
+      "duration": "Jan 2023 - Present",
+      "description": "Led development of an advanced automation system, achieving a 15% increase in operational efficiency. Streamlined manufacturing processes, reducing production costs by 10%. Implemented preventive maintenance strategies, resulting in a 20% decrease in equipment downtime."
+    }
+  ],
+  "projects": [],
+  "years_of_experience": "3 years",
+  "certifications": [
+    "Professional Design Engineer (PDE) License",
+    "Project Management Tech (PMT)"
+  ]
+}
