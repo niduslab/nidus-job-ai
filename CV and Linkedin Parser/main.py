@@ -771,6 +771,7 @@ async def parse_cv_batch(
                 "filename": file.filename,
                 "status": "success",
                 "request_id": result.request_id,
+                "data": result.data,
                 "processing_time": result.metadata.total_time if result.metadata else 0,
                 "cached": result.metadata.cached if result.metadata else False
             })
