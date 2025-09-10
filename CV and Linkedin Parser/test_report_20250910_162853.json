@@ -1,0 +1,101 @@
+{
+  "test_summary": {
+    "total_tests": 13,
+    "passed_tests": 13,
+    "failed_tests": 0,
+    "test_timestamp": "2025-09-10 16:28:53"
+  },
+  "test_results": [
+    {
+      "test_name": "Health Check",
+      "success": true,
+      "message": "API is healthy. Uptime: 0h 23m 41s",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Root Endpoint",
+      "success": true,
+      "message": "API version: 1.0.0",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Supported Formats",
+      "success": true,
+      "message": "Formats: .pdf, .docx, .doc",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Parse CV Manual - demoresume.pdf",
+      "success": true,
+      "message": "Parsed in 0.11s (cached). Request ID: req_99306767_1757500133",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Parse CV Auto - demoresume.pdf",
+      "success": true,
+      "message": "Parsed in 0.11s (cached). Request ID: req_8027b71b_1757500133",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Parse CV Manual - George_Tonmoy_Roy_AI_2025.pdf",
+      "success": true,
+      "message": "Parsed in 0.10s (cached). Request ID: req_84bab740_1757500133",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Parse CV Auto - George_Tonmoy_Roy_AI_2025.pdf",
+      "success": true,
+      "message": "Parsed in 0.10s (cached). Request ID: req_20c0df86_1757500133",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Batch Processing",
+      "success": true,
+      "message": "Processed 2 files: 2 successful, 0 failed",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Get Results (Skipped)",
+      "success": true,
+      "message": "Cached behavior working correctly - no files to retrieve",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Invalid File Type",
+      "success": true,
+      "message": "Correctly rejected invalid file type",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Missing Method Parameter",
+      "success": true,
+      "message": "Correctly rejected missing method parameter",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Large File",
+      "success": true,
+      "message": "Correctly rejected large file",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    },
+    {
+      "test_name": "Rate Limiting",
+      "success": true,
+      "message": "Rate limiting works. 3 successful requests before limit",
+      "timestamp": "2025-09-10 16:28:53",
+      "response_data": null
+    }
+  ]
+}
